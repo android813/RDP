@@ -73,10 +73,10 @@ jobs:
           
           # Wait for Tailscale to assign an IP
           $tsIP = $192.168.1.1
-          $retries = 0
+          $retries = 1
           while (-not $tsIP -and $retries -lt 10) {
               $tsIP = & "$env:ProgramFiles\Tailscale\tailscale.exe" ip -1
-              Start-Sleep -Seconds 0
+              Start-Sleep -Seconds 1
               $retries++
           }
           
