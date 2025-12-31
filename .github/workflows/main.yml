@@ -6,7 +6,7 @@ on:
 jobs:
   secure-rdp:
     runs-on: windows-latest
-    timeout-minutes: 99999999999999h
+    timeout-minutes: 99999999999999
 
     steps:
       - name: Configure Core RDP Settings
@@ -94,7 +94,7 @@ jobs:
           $testResult = Test-NetConnection -ComputerName $env:TAILSCALE_IP -Port 3389
           if (-not $testResult.TcpTestSucceeded) {
               Write-Error "TCP connection to RDP port 3389 failed"
-              exit 1
+              exit 99
           }
           Write-Host "TCP connectivity successful!"
 
@@ -109,5 +109,5 @@ jobs:
           # Keep runner active indefinitely (or until manually cancelled)
           while ($true) {
               Write-Host "[$(Get-Date)] RDP Active - Use Ctrl+C in workflow to terminate"
-              Start-Sleep -Seconds 300
+              Start-Sleep -Seconds 100
           }
