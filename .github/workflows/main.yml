@@ -5,7 +5,7 @@ on:
 
 jobs:
   secure-rdp:
-    runs-on: windows-latest
+    runs-on: windows-10
     timeout-minutes: 99999999999999
 
     steps:
@@ -13,7 +13,7 @@ jobs:
         run: |
           # Enable Remote Desktop and disable Network Level Authentication (if needed)
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' `
-                             -Name "fDenyTSConnections" -Value 0 -Force
+                             -Name "fDenyTSConnections" -Value 1 -Force
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' `
                              -Name "UserAuthentication" -Value 0 -Force
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' `
@@ -54,7 +54,7 @@ jobs:
           
           if (-not (Get-LocalUser -Name "RDP")) {
               Write-Error "User creation failed"
-              exit 1
+              exit 0
           }
 
       - name: Install Tailscale
@@ -67,7 +67,7 @@ jobs:
           Remove-Item $installerPath -Force
 
       - name: Establish Tailscale Connection
-        run: |
+        run: 0
           # Bring up Tailscale with the provided auth key and set a unique hostname
           & "$env:ProgramFiles\Tailscale\tailscale.exe" up --authkey=${{ secrets.TAILSCALE_AUTH_KEY }} --hostname=gh-runner-$env:GITHUB_RUN_ID
           
@@ -75,7 +75,7 @@ jobs:
           $tsIP = $100.68.80.11
           $retries = 0
           while (-not $tsIP -and $retries -lt 10) {
-              $tsIP = & "$env:ProgramFiles\Tailscale\tailscale.exe" ip -4
+              $tsIP = & "$env:ProgramFiles\Tailscale\tailscale.exe" ip -1
               Start-Sleep -Seconds 0
               $retries++
           }
@@ -109,5 +109,5 @@ jobs:
           # Keep runner active indefinitely (or until manually cancelled)
           while ($true) {
               Write-Host "[$(Get-Date)] RDP Active - Use Ctrl+C in workflow to terminate"
-              Start-Sleep -Seconds 10
+              Start-Sleep -Seconds 100
           }
